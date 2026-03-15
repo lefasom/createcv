@@ -3,11 +3,10 @@
 export const getCVHtml = (cvData: any, base64Image: string | null, templateId: number) => {
   const foto = base64Image ? base64Image : "";
 
-  // Estilo base para limpiar cabeceras de impresión
   const printCleanStyle = `
     @media print {
       @page { margin: 0; }
-      body { margin: 1.5cm; } /* Mantiene el margen visual sin los textos de sistema */
+      body { margin: 1.5cm; -webkit-print-color-adjust: exact; } 
     }
   `;
 
@@ -52,9 +51,8 @@ export const getCVHtml = (cvData: any, base64Image: string | null, templateId: n
 
   const currentStyle = styles[templateId] || styles[1];
 
-  if (templateId === 4) {
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${currentStyle}</style></head><body>
-      <div class="main-t4">
+  const content = templateId === 4 
+    ? `<div class="main-t4">
         <div class="side-t4">
           <div class="img-cont-t4">${foto ? `<img src="${foto}" />` : ''}</div>
           <div class="side-content-t4">
@@ -68,23 +66,20 @@ export const getCVHtml = (cvData: any, base64Image: string | null, templateId: n
           <div class="title-t4">Experiencia</div>
           ${cvData.experiencia.map((e: any) => `<p style="font-size:11px;"><strong>${e.puesto}</strong><br>${e.empresa}</p>`).join('')}
         </div>
+      </div>`
+    : `<div class="header-t${templateId}">
+        <div class="circle-t${templateId}">${foto ? `<img src="${foto}" style="width:100%;height:100%;object-fit:cover;"/>` : ''}</div>
+        <div>
+          <h1 style="margin:0;">${cvData.nombre}</h1>
+          <p style="font-size:18px; margin:5px 0 0 0; opacity:0.9;">${cvData.cargo}</p>
+        </div>
       </div>
-    </body></html>`;
-  }
+      <div class="content-t${templateId}">
+        <div class="title-t${templateId}">Resumen Profesional</div>
+        <p style="font-size:14px; line-height:1.5;">${cvData.resumen}</p>
+        <div class="title-t${templateId}">Experiencia Laboral</div>
+        ${cvData.experiencia.map((e: any) => `<div style="margin-bottom:12px;"><strong>${e.puesto}</strong> en ${e.empresa} (${e.periodo})</div>`).join('')}
+      </div>`;
 
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${currentStyle}</style></head><body>
-    <div class="header-t${templateId}">
-      <div class="circle-t${templateId}">${foto ? `<img src="${foto}" style="width:100%;height:100%;object-fit:cover;"/>` : ''}</div>
-      <div>
-        <h1 style="margin:0;">${cvData.nombre}</h1>
-        <p style="font-size:18px; margin:5px 0 0 0; opacity:0.9;">${cvData.cargo}</p>
-      </div>
-    </div>
-    <div class="content-t${templateId}">
-      <div class="title-t${templateId}">Resumen Profesional</div>
-      <p style="font-size:14px; line-height:1.5;">${cvData.resumen}</p>
-      <div class="title-t${templateId}">Experiencia Laboral</div>
-      ${cvData.experiencia.map((e: any) => `<div style="margin-bottom:12px;"><strong>${e.puesto}</strong> en ${e.empresa} (${e.periodo})</div>`).join('')}
-    </div>
-  </body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${currentStyle}</style></head><body>${content}</body></html>`;
 };
